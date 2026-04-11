@@ -16,6 +16,9 @@ import { PurchaseOrdersPage } from '../pages/PurchaseOrdersPage';
 import { PurchaseOrderFormPage } from '../pages/PurchaseOrderFormPage';
 import { PurchaseOrderDetailPage } from '../pages/PurchaseOrderDetailPage';
 import { PromotionsPage } from '../pages/PromotionsPage';
+import { SalesPage } from '../pages/SalesPage';
+import { RecordSalePage } from '../pages/RecordSalePage';
+import { SaleDetailPage } from '../pages/SaleDetailPage';
 
 export function AppRoutes() {
   return (
@@ -47,6 +50,9 @@ export function AppRoutes() {
           <Route path="purchases/new" element={<PurchaseOrderFormPage />} />
           <Route path="purchases/:id" element={<PurchaseOrderDetailPage />} />
           <Route path="promotions" element={<PromotionsPage />} />
+          <Route path="sales" element={<SalesPage />} />
+          <Route path="sales/new" element={<RecordSalePage />} />
+          <Route path="sales/:id" element={<SaleDetailPage />} />
         </Route>
       </Route>
     </Routes>

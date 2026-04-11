@@ -17,5 +17,7 @@ All types are plain interfaces (no classes). Import from here in services, hooks
 
 - promotion.types.ts → Promotion, PromotionFormValues, PromotionFilters, PromotionPayload, PromotionType, PromotionAppliesTo interfaces
 
+- sale.types.ts → Sale, SaleItem, DailySummary, SaleFilters, SalePayload interfaces
+
 ## Last Updated
-2026-04-11 — added promotion types (Promotion, PromotionPayload, PromotionType, PromotionAppliesTo, PromotionFormValues, PromotionFilters)
+2026-04-11 — added sale types (Sale, SaleItem, DailySummary, SaleFilters, SalePayload)
