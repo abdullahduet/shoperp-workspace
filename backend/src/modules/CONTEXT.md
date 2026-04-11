@@ -11,4 +11,4 @@ Contains one sub-package per business module (health, auth, products, etc.). Eac
 - Module packages expose their router via __init__.py or direct import in main.py.
 
 ## Last Updated
-2026-04-11 — initial scaffold
+2026-04-11 — added sales module (task/0012)

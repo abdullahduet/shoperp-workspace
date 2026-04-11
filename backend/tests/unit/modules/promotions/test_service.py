@@ -411,3 +411,46 @@ class TestCalculateDiscount:
         items = [{"product_id": "p1", "quantity": 3, "unit_price": 150}]
         # free_count = 3//2 = 1, discount = 1*150 = 150
         assert service.calculate_discount(promo, 450, items) == 150
+
+
+# ---------------------------------------------------------------------------
+# TestGetBestDiscount
+# ---------------------------------------------------------------------------
+
+class TestGetBestDiscount:
+    @pytest.mark.asyncio
+    async def test_returns_none_zero_when_no_active_promotions(self):
+        service, repo = _make_service()
+        repo.find_active.return_value = []
+        items = [{"product_id": "p1", "quantity": 2, "unit_price": 50000}]
+
+        promotion_id, discount = await service.get_best_discount(100000, items)
+
+        assert promotion_id is None
+        assert discount == 0
+
+    @pytest.mark.asyncio
+    async def test_returns_promotion_with_highest_discount(self):
+        service, repo = _make_service()
+        # Promo A: 10% of 100000 = 10000
+        promo_a = _make_fake_promotion(
+            promotion_id="promo-a",
+            promo_type="percentage",
+            value=10,
+            min_purchase_amount=0,
+        )
+        # Promo B: fixed 20000
+        promo_b = _make_fake_promotion(
+            promotion_id="promo-b",
+            promo_type="fixed",
+            value=20000,
+            min_purchase_amount=0,
+        )
+        repo.find_active.return_value = [promo_a, promo_b]
+        items = [{"product_id": "p1", "quantity": 2, "unit_price": 50000}]
+
+        promotion_id, discount = await service.get_best_discount(100000, items)
+
+        # Promo B gives 20000, promo A gives 10000 → B wins
+        assert promotion_id == "promo-b"
+        assert discount == 20000
