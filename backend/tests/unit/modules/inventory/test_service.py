@@ -12,7 +12,7 @@ import pytest
 
 from src.core.exceptions import NotFoundError, ValidationError
 from src.modules.inventory.repository import InventoryRepository
-from src.modules.inventory.schemas import StockMovementResponse, ValuationResponse
+from src.modules.inventory.schemas import StockMovementResponse
 from src.modules.inventory.service import InventoryService, PaginatedMovements
 
 
@@ -239,8 +239,12 @@ class TestGetValuation:
     @pytest.mark.asyncio
     async def test_valuation_sums_correctly(self):
         service, repo = _make_service()
-        p1 = MagicMock(); p1.stockQuantity = 10; p1.costPrice = 5000
-        p2 = MagicMock(); p2.stockQuantity = 5; p2.costPrice = 3000
+        p1 = MagicMock()
+        p1.stockQuantity = 10
+        p1.costPrice = 5000
+        p2 = MagicMock()
+        p2.stockQuantity = 5
+        p2.costPrice = 3000
         repo.get_active_products_for_valuation.return_value = [p1, p2]
 
         result = await service.get_valuation()

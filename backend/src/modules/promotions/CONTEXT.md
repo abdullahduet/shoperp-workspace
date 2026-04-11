@@ -6,7 +6,7 @@ Manages promotional discounts for the ShopERP retail system. Supports three disc
 ## Key Files
 - `schemas.py` → Pydantic models: PromotionCreate, PromotionUpdate, PromotionResponse
 - `repository.py` → DB queries via Prisma: find_paginated, find_active, find_by_id, create_with_products, update_with_products, soft_delete
-- `service.py` → Business logic: list, get_active, get_by_id, create, update, delete, calculate_discount
+- `service.py` → Business logic: list, get_active, get_by_id, create, update, delete, calculate_discount, get_best_discount
 - `controller.py` → HTTP layer: parse request, call service, return JSON response
 - `router.py` → FastAPI APIRouter with /promotions prefix; /active registered BEFORE /{promotion_id}
 
@@ -19,4 +19,4 @@ Manages promotional discounts for the ShopERP retail system. Supports three disc
 - BOGO discount: `qty // 2` integer division for free item count
 
 ## Last Updated
-2026-04-11 — initial implementation of promotions backend (task/0010)
+2026-04-11 — added get_best_discount() for sales integration (task/0012)

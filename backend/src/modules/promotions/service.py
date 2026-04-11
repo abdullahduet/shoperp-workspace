@@ -124,6 +124,27 @@ class PromotionService:
             raise NotFoundError("Promotion", promotion_id)
         await self.repo.soft_delete(promotion_id)
 
+    async def get_best_discount(
+        self,
+        subtotal: int,
+        items: list[dict],
+    ) -> tuple[str | None, int]:
+        """Find the best active promotion. Returns (promotion_id, discount_amount).
+
+        Returns (None, 0) if no promotion applies or gives discount > 0.
+        Items must be: [{"product_id": str, "quantity": int, "unit_price": int}]
+        """
+        now = datetime.now(timezone.utc)
+        promotions = await self.repo.find_active(now)
+        best_id: str | None = None
+        best_discount = 0
+        for promo in promotions:
+            discount = self.calculate_discount(promo, subtotal, items)
+            if discount > best_discount:
+                best_discount = discount
+                best_id = promo.id
+        return best_id, best_discount
+
     def calculate_discount(
         self,
         promotion,

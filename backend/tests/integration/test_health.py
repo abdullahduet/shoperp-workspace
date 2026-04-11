@@ -85,8 +85,6 @@ def _make_test_client(db_mock):
          patch("src.database.disconnect", new_callable=AsyncMock):
         # src.main may already be imported; that's fine — the patches
         # above affect the module-level _db reference at call time.
-        import importlib
-        import src.database as db_module
         import src.main as main_module
 
         # Force the lifespan not to call real connect by patching at module level
