@@ -16,6 +16,15 @@ Agents MUST update this file after every task is verified and merged. This preve
 
 ## Completed Work
 
+### [2026-04-11] Task 0012 — Sales Recording Backend
+- **Module:** Phase 6 / Sales Recording
+- **Agent:** Engineer
+- **What:** 4 endpoints (GET /sales paginated, GET /sales/daily-summary admin/manager only, GET /sales/:id, POST /sales). Atomic transaction: sale + sale_items + stock deductions + stock_movements (type="out") + journal entry (debit Cash 1000, credit Revenue 4000, balanced). Sale number auto-generated (SALE-YYYYMMDD-NNN). Promotion auto-applied server-side via PromotionService.get_best_discount(). Tax computed from product.taxRate (Decimal). Added get_best_discount() to PromotionService. Fixed pre-existing lint in 5 test files.
+- **Files:** 10 new (sales module: schemas, repository, service, controller, router, CONTEXT, __init__, 2 test files) + 4 modified (promotions/service.py, main.py, modules/CONTEXT.md, promotions/CONTEXT.md) + 5 lint fixes
+- **Tests:** 406 total passing (28 new: 16 unit + 12 integration + 2 TestGetBestDiscount in promotions)
+- **Merge:** phase/6-sales-recording
+- **QA note:** 1 defect fixed — promotions/CONTEXT.md not updated to include get_best_discount; 5 pre-existing lint errors (unused imports, E702 semicolons) fixed before merge.
+
 ### [2026-04-11] Task 0011 — Promotions Frontend
 - **Module:** Phase 5 / Promotions
 - **Agent:** Engineer
