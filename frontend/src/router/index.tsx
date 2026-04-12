@@ -19,6 +19,9 @@ import { PromotionsPage } from '../pages/PromotionsPage';
 import { SalesPage } from '../pages/SalesPage';
 import { RecordSalePage } from '../pages/RecordSalePage';
 import { SaleDetailPage } from '../pages/SaleDetailPage';
+import { AccountsPage } from '../pages/AccountsPage';
+import { JournalEntriesPage } from '../pages/JournalEntriesPage';
+import { ExpensesPage } from '../pages/ExpensesPage';
 
 export function AppRoutes() {
   return (
@@ -53,6 +56,9 @@ export function AppRoutes() {
           <Route path="sales" element={<SalesPage />} />
           <Route path="sales/new" element={<RecordSalePage />} />
           <Route path="sales/:id" element={<SaleDetailPage />} />
+          <Route path="accounting/accounts" element={<AccountsPage />} />
+          <Route path="accounting/journal-entries" element={<JournalEntriesPage />} />
+          <Route path="expenses" element={<ExpensesPage />} />
         </Route>
       </Route>
     </Routes>

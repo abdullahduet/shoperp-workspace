@@ -19,5 +19,7 @@ Hooks use TanStack Query v5 syntax. useCurrentUser has staleTime: Infinity to av
 
 - useSales.ts → useSales (paginated with filters), useSale (by id), useDailySummary (enabled param for role-gating), useRecordSale (mutation)
 
+- useAccounting.ts → useAccounts, useJournalEntries, useCreateJournalEntry, useExpenses, useCreateExpense, useUpdateExpense, useDeleteExpense
+
 ## Last Updated
-2026-04-11 — added sale hooks (useSales, useSale, useDailySummary, useRecordSale)
+2026-04-12 — added accounting hooks (useAccounts, useJournalEntries, useCreateJournalEntry, useExpenses, useCreateExpense, useUpdateExpense, useDeleteExpense)

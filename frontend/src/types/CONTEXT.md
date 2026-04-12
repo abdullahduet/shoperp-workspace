@@ -19,5 +19,7 @@ All types are plain interfaces (no classes). Import from here in services, hooks
 
 - sale.types.ts → Sale, SaleItem, DailySummary, SaleFilters, SalePayload interfaces
 
+- accounting.types.ts → Account, JournalEntryLine, JournalEntry, Expense, JournalEntryLineFormValues, JournalEntryPayload, ExpensePayload interfaces
+
 ## Last Updated
-2026-04-11 — added sale types (Sale, SaleItem, DailySummary, SaleFilters, SalePayload)
+2026-04-12 — added accounting types (Account, JournalEntry, Expense, JournalEntryPayload, ExpensePayload)

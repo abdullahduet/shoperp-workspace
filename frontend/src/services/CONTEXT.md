@@ -19,5 +19,7 @@ Each service function is async, unwraps `response.data.data`, and returns the ty
 
 - sale.service.ts → list (paginated + filters), getById, getDailySummary, create for sales
 
+- accounting.service.ts → listAccounts, listJournalEntries, createJournalEntry, listExpenses, createExpense, updateExpense, deleteExpense
+
 ## Last Updated
-2026-04-11 — added sale service (list, getById, getDailySummary, create)
+2026-04-12 — added accounting service (accounts, journal entries, expenses)
