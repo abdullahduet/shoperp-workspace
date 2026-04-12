@@ -16,6 +16,15 @@ Agents MUST update this file after every task is verified and merged. This preve
 
 ## Completed Work
 
+### [2026-04-11] Task 0013 — Sales Recording Frontend
+- **Module:** Phase 6 / Sales Recording
+- **Agent:** Engineer
+- **What:** SalesPage (list table, date/payment_method filters, pagination, daily summary panel for admin/manager). RecordSalePage (useFieldArray dynamic items, running subtotal in ৳, unit_price→paisa conversion, AxiosError display, redirect to detail on success). SaleDetailPage (header with payment badge, 4 summary cards, items table, promotion applied banner). Sales nav item enabled.
+- **Files:** 6 new (sale.types.ts, sale.service.ts, useSales.ts, SalesPage.tsx, RecordSalePage.tsx, SaleDetailPage.tsx) + 2 modified (AppLayout.tsx, router/index.tsx) + 4 CONTEXT.md updates
+- **Tests:** tsc --noEmit exits 0 (strict mode)
+- **Merge:** phase/6-sales-recording
+- **QA note:** APPROVED. All 16 criteria met first submission.
+
 ### [2026-04-11] Task 0012 — Sales Recording Backend
 - **Module:** Phase 6 / Sales Recording
 - **Agent:** Engineer
