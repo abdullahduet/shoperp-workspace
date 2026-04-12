@@ -16,13 +16,12 @@ There is **no automatic seed for users**. The `/api/auth/register` endpoint is p
 Run this in your terminal with the containers already up:
 
 ```bash
-docker compose exec backend python - <<'EOF'
-import asyncio, os
+docker compose exec -T backend python - << 'EOF'
+import asyncio
+import bcrypt
 from prisma import Prisma
-from passlib.context import CryptContext
 
-pwd = CryptContext(schemes=["bcrypt"], deprecated="auto", bcrypt__rounds=12)
-password_hash = pwd.hash("Admin1234!")
+password_hash = bcrypt.hashpw(b"Admin1234!", bcrypt.gensalt(rounds=12)).decode()
 
 async def main():
     db = Prisma()
@@ -41,6 +40,9 @@ asyncio.run(main())
 EOF
 ```
 
+> **`-T` flag** disables TTY allocation, which is required when piping a script via stdin.
+> **`bcrypt.hashpw` directly** avoids the `passlib` / `bcrypt ≥ 4.x` incompatibility (`__about__` AttributeError and the spurious 72-byte truncation error).
+
 This creates:
 
 | Field    | Value             |
@@ -53,26 +55,40 @@ Change the password immediately after your first login (see §4).
 
 ### Option B — Direct SQL via psql
 
-If you prefer SQL:
+**Step 1 — Generate a fresh bcrypt hash** (run this first, copy the output):
+
+```bash
+docker compose exec backend python -c \
+  "import bcrypt; print(bcrypt.hashpw(b'Admin1234!', bcrypt.gensalt(12)).decode())"
+```
+
+**Step 2 — Open psql:**
 
 ```bash
 docker compose exec db psql -U shoperp -d shoperp
 ```
 
-Then paste this (the hash below is bcrypt, 12 rounds, for the password `Admin1234!`):
+**Step 3 — Insert the user** (replace `<HASH>` with the output from Step 1):
 
 ```sql
-INSERT INTO users (email, password_hash, name, role, is_active)
+INSERT INTO users (email, password_hash, name, role, is_active, created_at, updated_at)
 VALUES (
     'admin@shoperp.com',
-    '$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewdBPj/o9lkMRIi2',
+    '<HASH>',
     'Super Admin',
     'admin',
-    true
+    true,
+    NOW(),
+    NOW()
 );
 ```
 
-> **Note:** If you want a different password, use Option A and change `"Admin1234!"` to your chosen password — it will be hashed correctly automatically.
+> **Why `created_at` and `updated_at` are required in SQL:**
+> Prisma's `@updatedAt` is enforced at the **application layer**, not as a PostgreSQL column default.
+> Direct SQL inserts bypass Prisma, so both timestamp columns must be supplied explicitly or the
+> `NOT NULL` constraint fires.
+
+> **Note:** If you want a different password, change `b'Admin1234!'` in Step 1 to your chosen password — it will be hashed correctly automatically.
 
 ---
 
