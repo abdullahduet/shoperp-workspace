@@ -16,6 +16,24 @@ Agents MUST update this file after every task is verified and merged. This preve
 
 ## Completed Work
 
+### [2026-04-12] Task 0017 — Reports + Dashboard Frontend
+- **Module:** Phase 8 / Reports + Dashboard
+- **Agent:** Engineer
+- **What:** DashboardPage (full rewrite from placeholder): 5 stat cards (today_sales, today_transactions, month_revenue, month_profit, low_stock_count) + inline CSS bar chart showing 12-month revenue trend. Admin/manager only — staff sees welcome message, queries gated via `enabled` param. ReportsPage: 7-report selector (sales, P&L, top-products, low-stock, purchases, expenses, inventory-valuation), date range inputs hidden for reports without date params, "Run Report" triggers imperative fetch, "Download CSV" appears after data loads, all 7 result tables rendered. Reports nav enabled in sidebar.
+- **Files:** 4 new (report.types.ts, report.service.ts, useReports.ts, ReportsPage.tsx) + 3 modified (DashboardPage.tsx full rewrite, AppLayout.tsx nav enable, router/index.tsx) + 4 CONTEXT.md updates
+- **Tests:** tsc --noEmit exits 0 (strict mode)
+- **Merge:** phase/8-reports-dashboard
+- **QA note:** APPROVED. All criteria met first submission.
+
+### [2026-04-12] Task 0016 — Reports + Dashboard Backend
+- **Module:** Phase 8 / Reports + Dashboard
+- **Agent:** Engineer
+- **What:** Reports module: 7 endpoints under /api/reports — sales (daily breakdown), profit-loss (revenue/COGS/expenses/net), top-products (sorted qty desc), low-stock (all roles), purchases (excl. cancelled POs), expenses (by category desc), inventory-valuation (stock × cost_price). All support format=csv. Dashboard module: 2 endpoints — /dashboard/summary (today+month stats) and /dashboard/trends (12-month sorted desc). Python dataclasses + asdict() serialization. All aggregation in service layer.
+- **Files:** 14 new (reports + dashboard modules: schemas, repo, service, controller, router, CONTEXT, __init__; 4 test files; 2 test __init__) + 2 modified (main.py, modules/CONTEXT.md)
+- **Tests:** 487 total passing (42 new: 18 unit reports, 5 unit dashboard, 14 integration reports, 5 integration dashboard)
+- **Merge:** phase/8-reports-dashboard
+- **QA note:** APPROVED. All criteria met first submission. Lint (6 unused imports) fixed by Tech Lead before commit.
+
 ### [2026-04-11] Task 0015 — Accounting Frontend
 - **Module:** Phase 7 / Accounting
 - **Agent:** Engineer
