@@ -1,0 +1,294 @@
+generator client {
+  provider             = "prisma-client-py"
+  interface            = "asyncio"
+  recursive_type_depth = 5
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  email       String    @unique @db.VarChar(255)
+  passwordHash String   @map("password_hash") @db.VarChar(255)
+  name        String    @db.VarChar(255)
+  role        String    @db.VarChar(20)
+  isActive    Boolean   @default(true) @map("is_active")
+  lastLoginAt DateTime? @map("last_login_at") @db.Timestamptz()
+  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz()
+  updatedAt   DateTime  @updatedAt @map("updated_at") @db.Timestamptz()
+  deletedAt   DateTime? @map("deleted_at") @db.Timestamptz()
+
+  stockMovements  StockMovement[]
+  purchaseOrders  PurchaseOrder[]
+  sales           Sale[]
+  expenses        Expense[]
+  journalEntries  JournalEntry[]
+
+  @@map("users")
+}
+
+model Category {
+  id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name        String    @db.VarChar(255)
+  description String?   @db.Text
+  parentId    String?   @map("parent_id") @db.Uuid
+  sortOrder   Int       @default(0) @map("sort_order")
+  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz()
+  updatedAt   DateTime  @updatedAt @map("updated_at") @db.Timestamptz()
+  deletedAt   DateTime? @map("deleted_at") @db.Timestamptz()
+
+  parent   Category?  @relation("CategoryParent", fields: [parentId], references: [id], onDelete: SetNull)
+  children Category[] @relation("CategoryParent")
+  products Product[]
+
+  @@map("categories")
+}
+
+model Product {
+  id            String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name          String    @db.VarChar(255)
+  sku           String    @unique @db.VarChar(100)
+  barcode       String?   @unique @db.VarChar(100)
+  categoryId    String?   @map("category_id") @db.Uuid
+  description   String?   @db.Text
+  unitPrice     Int       @default(0) @map("unit_price")
+  costPrice     Int       @default(0) @map("cost_price")
+  taxRate       Decimal   @default(0.00) @map("tax_rate") @db.Decimal(5, 2)
+  stockQuantity Int       @default(0) @map("stock_quantity")
+  minStockLevel Int       @default(0) @map("min_stock_level")
+  unitOfMeasure String    @default("pcs") @map("unit_of_measure") @db.VarChar(20)
+  imageUrl      String?   @map("image_url") @db.VarChar(500)
+  isActive      Boolean   @default(true) @map("is_active")
+  createdAt     DateTime  @default(now()) @map("created_at") @db.Timestamptz()
+  updatedAt     DateTime  @updatedAt @map("updated_at") @db.Timestamptz()
+  deletedAt     DateTime? @map("deleted_at") @db.Timestamptz()
+
+  category           Category?           @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  purchaseOrderItems PurchaseOrderItem[]
+  stockMovements     StockMovement[]
+  saleItems          SaleItem[]
+  promotionProducts  PromotionProduct[]
+
+  @@map("products")
+}
+
+model Supplier {
+  id            String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name          String    @db.VarChar(255)
+  contactPerson String?   @map("contact_person") @db.VarChar(255)
+  phone         String?   @db.VarChar(50)
+  email         String?   @db.VarChar(255)
+  address       String?   @db.Text
+  city          String?   @db.VarChar(100)
+  country       String?   @default("Bangladesh") @db.VarChar(100)
+  paymentTerms  String?   @map("payment_terms") @db.VarChar(100)
+  isActive      Boolean   @default(true) @map("is_active")
+  notes         String?   @db.Text
+  createdAt     DateTime  @default(now()) @map("created_at") @db.Timestamptz()
+  updatedAt     DateTime  @updatedAt @map("updated_at") @db.Timestamptz()
+  deletedAt     DateTime? @map("deleted_at") @db.Timestamptz()
+
+  purchaseOrders PurchaseOrder[]
+
+  @@map("suppliers")
+}
+
+model PurchaseOrder {
+  id           String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  poNumber     String    @unique @map("po_number") @db.VarChar(50)
+  supplierId   String    @map("supplier_id") @db.Uuid
+  orderDate    DateTime  @default(now()) @map("order_date") @db.Date
+  expectedDate DateTime? @map("expected_date") @db.Date
+  status       String    @default("draft") @db.VarChar(25)
+  subtotal     Int       @default(0)
+  taxAmount    Int       @default(0) @map("tax_amount")
+  totalAmount  Int       @default(0) @map("total_amount")
+  notes        String?   @db.Text
+  createdBy    String?   @map("created_by") @db.Uuid
+  createdAt    DateTime  @default(now()) @map("created_at") @db.Timestamptz()
+  updatedAt    DateTime  @updatedAt @map("updated_at") @db.Timestamptz()
+  deletedAt    DateTime? @map("deleted_at") @db.Timestamptz()
+
+  supplier      Supplier           @relation(fields: [supplierId], references: [id])
+  createdByUser User?              @relation(fields: [createdBy], references: [id])
+  items         PurchaseOrderItem[]
+
+  @@map("purchase_orders")
+}
+
+model PurchaseOrderItem {
+  id               String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  purchaseOrderId  String   @map("purchase_order_id") @db.Uuid
+  productId        String   @map("product_id") @db.Uuid
+  quantity         Int
+  receivedQuantity Int      @default(0) @map("received_quantity")
+  unitCost         Int      @map("unit_cost")
+  totalCost        Int      @map("total_cost")
+  createdAt        DateTime @default(now()) @map("created_at") @db.Timestamptz()
+  updatedAt        DateTime @updatedAt @map("updated_at") @db.Timestamptz()
+
+  purchaseOrder PurchaseOrder @relation(fields: [purchaseOrderId], references: [id], onDelete: Cascade)
+  product       Product       @relation(fields: [productId], references: [id])
+
+  @@map("purchase_order_items")
+}
+
+model StockMovement {
+  id            String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  productId     String   @map("product_id") @db.Uuid
+  movementType  String   @map("movement_type") @db.VarChar(20)
+  quantity      Int
+  stockBefore   Int      @map("stock_before")
+  stockAfter    Int      @map("stock_after")
+  referenceType String?  @map("reference_type") @db.VarChar(50)
+  referenceId   String?  @map("reference_id") @db.Uuid
+  notes         String?  @db.Text
+  performedBy   String?  @map("performed_by") @db.Uuid
+  createdAt     DateTime @default(now()) @map("created_at") @db.Timestamptz()
+
+  product         Product @relation(fields: [productId], references: [id])
+  performedByUser User?   @relation(fields: [performedBy], references: [id])
+
+  @@map("stock_movements")
+}
+
+model Promotion {
+  id                 String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name               String    @db.VarChar(255)
+  type               String    @db.VarChar(20)
+  value              Int
+  startDate          DateTime  @map("start_date") @db.Timestamptz()
+  endDate            DateTime  @map("end_date") @db.Timestamptz()
+  minPurchaseAmount  Int       @default(0) @map("min_purchase_amount")
+  appliesTo          String    @default("all") @map("applies_to") @db.VarChar(20)
+  isActive           Boolean   @default(true) @map("is_active")
+  createdAt          DateTime  @default(now()) @map("created_at") @db.Timestamptz()
+  updatedAt          DateTime  @updatedAt @map("updated_at") @db.Timestamptz()
+  deletedAt          DateTime? @map("deleted_at") @db.Timestamptz()
+
+  promotionProducts PromotionProduct[]
+  sales             Sale[]
+
+  @@map("promotions")
+}
+
+model PromotionProduct {
+  id          String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  promotionId String @map("promotion_id") @db.Uuid
+  productId   String @map("product_id") @db.Uuid
+
+  promotion Promotion @relation(fields: [promotionId], references: [id], onDelete: Cascade)
+  product   Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([promotionId, productId])
+  @@map("promotion_products")
+}
+
+model Sale {
+  id             String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  saleNumber     String    @unique @map("sale_number") @db.VarChar(50)
+  saleDate       DateTime  @default(now()) @map("sale_date") @db.Timestamptz()
+  customerName   String?   @map("customer_name") @db.VarChar(255)
+  subtotal       Int       @default(0)
+  discountAmount Int       @default(0) @map("discount_amount")
+  taxAmount      Int       @default(0) @map("tax_amount")
+  totalAmount    Int       @default(0) @map("total_amount")
+  paymentMethod  String    @default("cash") @map("payment_method") @db.VarChar(20)
+  promotionId    String?   @map("promotion_id") @db.Uuid
+  notes          String?   @db.Text
+  recordedBy     String?   @map("recorded_by") @db.Uuid
+  createdAt      DateTime  @default(now()) @map("created_at") @db.Timestamptz()
+  updatedAt      DateTime  @updatedAt @map("updated_at") @db.Timestamptz()
+  deletedAt      DateTime? @map("deleted_at") @db.Timestamptz()
+
+  promotion      Promotion? @relation(fields: [promotionId], references: [id])
+  recordedByUser User?      @relation(fields: [recordedBy], references: [id])
+  saleItems      SaleItem[]
+
+  @@map("sales")
+}
+
+model SaleItem {
+  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  saleId     String   @map("sale_id") @db.Uuid
+  productId  String   @map("product_id") @db.Uuid
+  quantity   Int
+  unitPrice  Int      @map("unit_price")
+  discount   Int      @default(0)
+  totalPrice Int      @map("total_price")
+  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz()
+
+  sale    Sale    @relation(fields: [saleId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id])
+
+  @@map("sale_items")
+}
+
+model Expense {
+  id            String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  date          DateTime  @db.Date
+  category      String    @db.VarChar(100)
+  description   String    @db.Text
+  amount        Int
+  paymentMethod String    @default("cash") @map("payment_method") @db.VarChar(20)
+  receiptUrl    String?   @map("receipt_url") @db.VarChar(500)
+  notes         String?   @db.Text
+  recordedBy    String?   @map("recorded_by") @db.Uuid
+  createdAt     DateTime  @default(now()) @map("created_at") @db.Timestamptz()
+  updatedAt     DateTime  @updatedAt @map("updated_at") @db.Timestamptz()
+  deletedAt     DateTime? @map("deleted_at") @db.Timestamptz()
+
+  recordedByUser User? @relation(fields: [recordedBy], references: [id])
+
+  @@map("expenses")
+}
+
+model Account {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  code      String   @unique @db.VarChar(20)
+  name      String   @db.VarChar(255)
+  type      String   @db.VarChar(20)
+  parentId  String?  @map("parent_id") @db.Uuid
+  isActive  Boolean  @default(true) @map("is_active")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz()
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz()
+
+  parent            Account?           @relation("AccountParent", fields: [parentId], references: [id])
+  children          Account[]          @relation("AccountParent")
+  journalEntryLines JournalEntryLine[]
+
+  @@map("accounts")
+}
+
+model JournalEntry {
+  id            String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  entryNumber   String   @unique @map("entry_number") @db.VarChar(50)
+  date          DateTime @default(now()) @db.Date
+  description   String   @db.Text
+  referenceType String?  @map("reference_type") @db.VarChar(50)
+  referenceId   String?  @map("reference_id") @db.Uuid
+  createdBy     String?  @map("created_by") @db.Uuid
+  createdAt     DateTime @default(now()) @map("created_at") @db.Timestamptz()
+
+  createdByUser User?              @relation(fields: [createdBy], references: [id])
+  lines         JournalEntryLine[]
+
+  @@map("journal_entries")
+}
+
+model JournalEntryLine {
+  id             String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  journalEntryId String  @map("journal_entry_id") @db.Uuid
+  accountId      String  @map("account_id") @db.Uuid
+  debitAmount    Int     @default(0) @map("debit_amount")
+  creditAmount   Int     @default(0) @map("credit_amount")
+  description    String? @db.Text
+
+  journalEntry JournalEntry @relation(fields: [journalEntryId], references: [id], onDelete: Cascade)
+  account      Account      @relation(fields: [accountId], references: [id])
+
+  @@map("journal_entry_lines")
+}
