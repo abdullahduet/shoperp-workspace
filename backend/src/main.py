@@ -17,6 +17,8 @@ from src.modules.suppliers.router import router as suppliers_router
 from src.modules.purchase_orders.router import router as purchase_orders_router
 from src.modules.promotions.router import router as promotions_router
 from src.modules.sales.router import router as sales_router
+from src.modules.accounting.router import router as accounting_router
+from src.modules.expenses.router import router as expenses_router
 
 
 @asynccontextmanager
@@ -76,3 +78,5 @@ app.include_router(suppliers_router, prefix="/api")
 app.include_router(purchase_orders_router, prefix="/api")
 app.include_router(promotions_router, prefix="/api")
 app.include_router(sales_router, prefix="/api")
+app.include_router(accounting_router, prefix="/api")
+app.include_router(expenses_router, prefix="/api")
