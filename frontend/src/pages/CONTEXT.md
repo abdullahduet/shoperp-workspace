@@ -28,5 +28,9 @@ Pages handle loading/error/empty states. Forms use React Hook Form + Zod validat
 - RecordSalePage.tsx → new sale form with dynamic item rows via useFieldArray; running subtotal (client-side, ৳ display); unit_price entered in ৳, submitted as paisa; optional customer_name and notes sent as undefined not ""
 - SaleDetailPage.tsx → sale header (sale_number, date, customer, payment badge); 4 summary cards (subtotal/discount/tax/total); promotion applied green banner when promotion_id set; items table; notes section
 
+- AccountsPage.tsx → read-only chart of accounts table; sorted by code; type badges (blue/red/purple/green/orange); parent code lookup; no pagination (small dataset)
+- JournalEntriesPage.tsx → paginated journal entries list with date range + reference_type filter; reference type badges (green/red/blue/gray); admin-only "New Entry" button; create modal with dynamic line rows via useFieldArray (min 2); running debit/credit totals via useWatch; line amounts in ৳ submitted as paisa
+- ExpensesPage.tsx → paginated expenses list with date range + category filter; payment method badges (green/blue/purple/orange); create/edit inline modal; amount in ৳ submitted as paisa; edit pre-fills amount as paisa→৳; admin-only delete with window.confirm
+
 ## Last Updated
-2026-04-11 — added SalesPage, RecordSalePage, SaleDetailPage
+2026-04-12 — added AccountsPage, JournalEntriesPage, ExpensesPage

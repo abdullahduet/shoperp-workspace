@@ -33,7 +33,7 @@ const NAV_ITEMS: NavItem[] = [
   { label: 'Purchases', icon: ShoppingCart, to: '/purchases', enabled: true },
   { label: 'Promotions', icon: Receipt, to: '/promotions', enabled: true },
   { label: 'Sales', icon: Calculator, to: '/sales', enabled: true },
-  { label: 'Accounting', icon: BarChart3, to: '/accounting', enabled: false },
+  { label: 'Accounting', icon: BarChart3, to: '/accounting/accounts', enabled: true },
   { label: 'Reports', icon: BarChart3, to: '/reports', enabled: false },
 ];
 
