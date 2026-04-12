@@ -21,5 +21,7 @@ All types are plain interfaces (no classes). Import from here in services, hooks
 
 - accounting.types.ts → Account, JournalEntryLine, JournalEntry, Expense, JournalEntryLineFormValues, JournalEntryPayload, ExpensePayload interfaces
 
+- report.types.ts → DashboardSummary, TrendItem, Period, SalesReport, SalesReportItem, ProfitLossReport, TopProductsReport, TopProductItem, LowStockItem, PurchasesReport, PurchasesReportItem, ExpensesReport, ExpenseCategoryItem, InventoryValuationReport, InventoryValuationItem
+
 ## Last Updated
-2026-04-12 — added accounting types (Account, JournalEntry, Expense, JournalEntryPayload, ExpensePayload)
+2026-04-12 — added report types (dashboard summary/trends, all report response shapes)

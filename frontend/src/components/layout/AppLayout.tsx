@@ -34,7 +34,7 @@ const NAV_ITEMS: NavItem[] = [
   { label: 'Promotions', icon: Receipt, to: '/promotions', enabled: true },
   { label: 'Sales', icon: Calculator, to: '/sales', enabled: true },
   { label: 'Accounting', icon: BarChart3, to: '/accounting/accounts', enabled: true },
-  { label: 'Reports', icon: BarChart3, to: '/reports', enabled: false },
+  { label: 'Reports', icon: BarChart3, to: '/reports', enabled: true },
 ];
 
 const ROLE_BADGE_COLORS: Record<string, string> = {

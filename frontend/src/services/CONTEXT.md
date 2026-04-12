@@ -21,5 +21,7 @@ Each service function is async, unwraps `response.data.data`, and returns the ty
 
 - accounting.service.ts → listAccounts, listJournalEntries, createJournalEntry, listExpenses, createExpense, updateExpense, deleteExpense
 
+- report.service.ts → getDashboardSummary, getDashboardTrends, getSalesReport, getProfitLoss, getTopProducts, getLowStock, getPurchasesReport, getExpensesReport, getInventoryValuation, downloadCsv (blob download)
+
 ## Last Updated
-2026-04-12 — added accounting service (accounts, journal entries, expenses)
+2026-04-12 — added report service (dashboard summary/trends, all report endpoints, CSV download)

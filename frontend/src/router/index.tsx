@@ -22,6 +22,7 @@ import { SaleDetailPage } from '../pages/SaleDetailPage';
 import { AccountsPage } from '../pages/AccountsPage';
 import { JournalEntriesPage } from '../pages/JournalEntriesPage';
 import { ExpensesPage } from '../pages/ExpensesPage';
+import { ReportsPage } from '../pages/ReportsPage';
 
 export function AppRoutes() {
   return (
@@ -59,6 +60,7 @@ export function AppRoutes() {
           <Route path="accounting/accounts" element={<AccountsPage />} />
           <Route path="accounting/journal-entries" element={<JournalEntriesPage />} />
           <Route path="expenses" element={<ExpensesPage />} />
+          <Route path="reports" element={<ReportsPage />} />
         </Route>
       </Route>
     </Routes>

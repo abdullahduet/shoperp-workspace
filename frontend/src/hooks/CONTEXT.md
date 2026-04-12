@@ -21,5 +21,7 @@ Hooks use TanStack Query v5 syntax. useCurrentUser has staleTime: Infinity to av
 
 - useAccounting.ts → useAccounts, useJournalEntries, useCreateJournalEntry, useExpenses, useCreateExpense, useUpdateExpense, useDeleteExpense
 
+- useReports.ts → useDashboardSummary(enabled), useDashboardTrends(enabled) — both take enabled param to prevent firing for staff role
+
 ## Last Updated
-2026-04-12 — added accounting hooks (useAccounts, useJournalEntries, useCreateJournalEntry, useExpenses, useCreateExpense, useUpdateExpense, useDeleteExpense)
+2026-04-12 — added useReports (useDashboardSummary, useDashboardTrends with enabled param for role-gating)
