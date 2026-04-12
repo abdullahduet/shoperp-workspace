@@ -24,5 +24,9 @@ Pages handle loading/error/empty states. Forms use React Hook Form + Zod validat
 
 - PromotionsPage.tsx → paginated promotions list with type + status filters; type badges (blue/purple/orange); computed status (Active/Inactive/Scheduled/Expired); create/edit inline modal with type-dependent value field; admin/manager edit; admin-only delete
 
+- SalesPage.tsx → paginated sales list with date range + payment method filters; daily summary panel (admin/manager only) with revenue, transaction count, and payment breakdown cards; payment method badges (green/blue/purple/orange)
+- RecordSalePage.tsx → new sale form with dynamic item rows via useFieldArray; running subtotal (client-side, ৳ display); unit_price entered in ৳, submitted as paisa; optional customer_name and notes sent as undefined not ""
+- SaleDetailPage.tsx → sale header (sale_number, date, customer, payment badge); 4 summary cards (subtotal/discount/tax/total); promotion applied green banner when promotion_id set; items table; notes section
+
 ## Last Updated
-2026-04-11 — added PromotionsPage with inline create/edit modal, type badges, computed status badges, and filter bar
+2026-04-11 — added SalesPage, RecordSalePage, SaleDetailPage

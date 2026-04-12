@@ -17,5 +17,7 @@ Each service function is async, unwraps `response.data.data`, and returns the ty
 
 - promotion.service.ts → list (paginated + filters), getActive, getById, create, update, remove for promotions
 
+- sale.service.ts → list (paginated + filters), getById, getDailySummary, create for sales
+
 ## Last Updated
-2026-04-11 — added promotion service (list, getActive, getById, create, update, remove)
+2026-04-11 — added sale service (list, getById, getDailySummary, create)

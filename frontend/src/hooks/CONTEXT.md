@@ -17,5 +17,7 @@ Hooks use TanStack Query v5 syntax. useCurrentUser has staleTime: Infinity to av
 
 - usePromotions.ts → usePromotions, useActivePromotions, usePromotion, useCreatePromotion, useUpdatePromotion, useDeletePromotion
 
+- useSales.ts → useSales (paginated with filters), useSale (by id), useDailySummary (enabled param for role-gating), useRecordSale (mutation)
+
 ## Last Updated
-2026-04-11 — added promotion hooks (usePromotions, useActivePromotions, usePromotion, useCreatePromotion, useUpdatePromotion, useDeletePromotion)
+2026-04-11 — added sale hooks (useSales, useSale, useDailySummary, useRecordSale)
