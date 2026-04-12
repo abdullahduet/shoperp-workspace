@@ -32,5 +32,8 @@ Pages handle loading/error/empty states. Forms use React Hook Form + Zod validat
 - JournalEntriesPage.tsx → paginated journal entries list with date range + reference_type filter; reference type badges (green/red/blue/gray); admin-only "New Entry" button; create modal with dynamic line rows via useFieldArray (min 2); running debit/credit totals via useWatch; line amounts in ৳ submitted as paisa
 - ExpensesPage.tsx → paginated expenses list with date range + category filter; payment method badges (green/blue/purple/orange); create/edit inline modal; amount in ৳ submitted as paisa; edit pre-fills amount as paisa→৳; admin-only delete with window.confirm
 
+- DashboardPage.tsx → live dashboard with StatCards (admin/manager only); role-gated via useAuthStore; calls useDashboardSummary and useDashboardTrends; CSS-only bar chart (TrendChart)
+- ReportsPage.tsx → on-demand report runner for 7 report types (sales, profit-loss, top-products, low-stock, purchases, expenses, inventory-valuation); date range controls; Download CSV button via reportService.downloadCsv
+
 ## Last Updated
-2026-04-12 — added AccountsPage, JournalEntriesPage, ExpensesPage
+2026-04-12 — added DashboardPage (live stats), ReportsPage (multi-report runner)
