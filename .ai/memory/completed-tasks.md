@@ -16,6 +16,24 @@ Agents MUST update this file after every task is verified and merged. This preve
 
 ## Completed Work
 
+### [2026-04-11] Task 0015 — Accounting Frontend
+- **Module:** Phase 7 / Accounting
+- **Agent:** Engineer
+- **What:** AccountsPage (read-only chart of accounts sorted by code, type badges). JournalEntriesPage (paginated list with date/reference_type filters, admin-only create modal with useFieldArray dynamic lines, min 2 lines, reactive debit/credit balance indicator via useWatch). ExpensesPage (paginated list with date/category filters, inline create/edit modal, amount paisa conversion, admin-only delete with confirm). Accounting nav enabled pointing to /accounting/accounts.
+- **Files:** 6 new (accounting.types.ts, accounting.service.ts, useAccounting.ts, AccountsPage.tsx, JournalEntriesPage.tsx, ExpensesPage.tsx) + 2 modified (AppLayout.tsx, router/index.tsx) + 4 CONTEXT.md updates
+- **Tests:** tsc --noEmit exits 0 (strict mode)
+- **Merge:** phase/7-accounting
+- **QA note:** APPROVED. All criteria met first submission.
+
+### [2026-04-11] Task 0014 — Accounting Backend
+- **Module:** Phase 7 / Accounting
+- **Agent:** Engineer
+- **What:** Accounting module: GET /accounting/accounts (all active, admin+manager), GET /accounting/journal-entries (paginated, date+reference_type filters, admin+manager), POST /accounting/journal-entries (admin only, validates sum(debit)==sum(credit), Rule #21). Expenses module: full CRUD (GET/POST/PUT/DELETE), expense create atomically creates balanced journal entry (debit code=6500, credit code=1000). Journal entry immutable after create.
+- **Files:** 14 new (accounting + expenses modules: schemas, repo, service, controller, router, CONTEXT, __init__; 4 test files; 2 test __init__) + 2 modified (main.py, modules/CONTEXT.md)
+- **Tests:** 445 total passing (39 new: 9 unit accounting, 11 unit expenses, 10 integration accounting, 9 integration expenses)
+- **Merge:** phase/7-accounting
+- **QA note:** APPROVED. All criteria met first submission.
+
 ### [2026-04-11] Task 0013 — Sales Recording Frontend
 - **Module:** Phase 6 / Sales Recording
 - **Agent:** Engineer

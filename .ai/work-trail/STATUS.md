@@ -1,9 +1,9 @@
 # Project Status
 
 **Last updated:** 2026-04-11
-**Current state:** Sprint 1 in progress — Phase 6 complete, Phase 7 next
-**Current phase:** 7 — Accounting (next)
-**Current branch:** phase/6-sales-recording (complete)
+**Current state:** Sprint 1 in progress — Phase 7 complete, Phase 8 next
+**Current phase:** 8 — Reports + Dashboard (next)
+**Current branch:** phase/7-accounting (complete)
 **Agent model:** 3-agent (Tech Lead, Engineer, QA Reviewer)
 
 ## Module Progress
@@ -16,7 +16,7 @@
 | Suppliers + Purchases | 4 | **Complete** ✓ | 14/14 | 339 |
 | Promotions | 5 | **Complete** ✓ | 6/6 | 376 |
 | Sales Recording | 6 | **Complete** ✓ | 4/4 | 406 |
-| Accounting | 7 | Not Started | 0 | 0 |
+| Accounting | 7 | **Complete** ✓ | 7/7 | 445 |
 | Reports + Dashboard | 8 | Not Started | 0 | 0 |
 
 ## Completed Phases
@@ -32,6 +32,8 @@
 | Task | Branch | Status | Assigned |
 |------|--------|--------|----------|
 | 0012 — Sales Backend | task/0012-sales-backend | **Merged** ✓ | Engineer |
+| 0015 — Accounting Frontend | task/0015-accounting-frontend | **Merged** ✓ | Engineer |
+| 0014 — Accounting Backend | task/0014-accounting-backend | **Merged** ✓ | Engineer |
 | 0013 — Sales Frontend | task/0013-sales-frontend | **Merged** ✓ | Engineer |
 | 0001 — Infrastructure Scaffold | task/0001-infrastructure-scaffold | **Merged** ✓ | Engineer |
 | 0002 — Auth Backend | task/0002-auth-backend | **Merged** ✓ | Engineer |
@@ -51,6 +53,6 @@ None.
 
 ## Next Action
 
-Begin Phase 7 — Accounting:
-- task/0014-accounting-backend: chart of accounts, journal entries, expenses (CRUD + auto-creates)
-- task/0015-accounting-frontend: AccountsPage, JournalEntriesPage, ExpensesPage
+Begin Phase 8 — Reports + Dashboard:
+- task/0016-reports-backend: 7 report endpoints + dashboard summary/trends
+- task/0017-reports-frontend: ReportsPage, DashboardPage with charts
