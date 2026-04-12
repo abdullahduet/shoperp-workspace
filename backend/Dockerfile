@@ -2,9 +2,13 @@ FROM python:3.12-slim
 
 WORKDIR /app
 
-# Install system dependencies required by some Python packages
+# Install system dependencies.
+# libatomic1 is required by the Node.js binary that Prisma bundles for its
+# query engine — python:*-slim strips it, causing `prisma generate` to fail
+# with "libatomic.so.1: cannot open shared object file".
 RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
+    libatomic1 \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Python dependencies
