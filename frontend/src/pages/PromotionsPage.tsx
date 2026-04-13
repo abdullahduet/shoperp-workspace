@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useForm, useWatch } from 'react-hook-form';
+import { useForm, useWatch, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Pencil, Trash2, Plus } from 'lucide-react';
@@ -12,6 +12,7 @@ import {
 import { useAuthStore } from '../store/auth.store';
 import { LoadingSkeleton } from '../components/ui/LoadingSkeleton';
 import { ErrorDisplay } from '../components/ui/ErrorDisplay';
+import { ProductMultiSelect } from '../components/ui/ProductSearchSelect';
 import type { Promotion, PromotionPayload } from '../types/promotion.types';
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
@@ -56,7 +57,8 @@ const promotionSchema = z.object({
   min_purchase_amount: z.number().min(0).default(0),
   applies_to: z.enum(['all', 'specific']),
   is_active: z.boolean().default(true),
-  product_ids_text: z.string().default(''),
+  auto_apply: z.boolean().default(false),
+  product_ids: z.array(z.string()).default([]),
 });
 
 type PromotionSchemaValues = z.infer<typeof promotionSchema>;
@@ -94,8 +96,8 @@ function PromotionModal({ editing, onClose }: PromotionModalProps) {
           min_purchase_amount: editing.min_purchase_amount / 100,
           applies_to: editing.applies_to,
           is_active: editing.is_active,
-          product_ids_text:
-            editing.applies_to === 'specific' ? editing.product_ids.join('\n') : '',
+          product_ids: editing.applies_to === 'specific' ? editing.product_ids : [],
+          auto_apply: editing.auto_apply,
         }
       : {
           name: '',
@@ -106,7 +108,8 @@ function PromotionModal({ editing, onClose }: PromotionModalProps) {
           min_purchase_amount: 0,
           applies_to: 'all',
           is_active: true,
-          product_ids_text: '',
+          auto_apply: false,
+          product_ids: [],
         },
   });
 
@@ -131,13 +134,8 @@ function PromotionModal({ editing, onClose }: PromotionModalProps) {
       min_purchase_amount: Math.round(values.min_purchase_amount * 100),
       applies_to: values.applies_to,
       is_active: values.is_active,
-      product_ids:
-        values.applies_to === 'specific'
-          ? values.product_ids_text
-              .split(/[\n,]+/)
-              .map((s) => s.trim())
-              .filter(Boolean)
-          : [],
+      auto_apply: values.auto_apply,
+      product_ids: values.applies_to === 'specific' ? values.product_ids : [],
     };
 
     if (editing) {
@@ -267,12 +265,16 @@ function PromotionModal({ editing, onClose }: PromotionModalProps) {
           {/* Product IDs — shown only when applies_to='specific' */}
           {watchedAppliesTo === 'specific' && (
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Product IDs</label>
-              <textarea
-                {...register('product_ids_text')}
-                rows={4}
-                placeholder="Enter product UUIDs, one per line or comma-separated"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono"
+              <label className="block text-sm font-medium text-gray-700 mb-1">Products</label>
+              <Controller
+                control={control}
+                name="product_ids"
+                render={({ field }) => (
+                  <ProductMultiSelect
+                    value={field.value}
+                    onChange={field.onChange}
+                  />
+                )}
               />
             </div>
           )}
@@ -288,6 +290,25 @@ function PromotionModal({ editing, onClose }: PromotionModalProps) {
             <label htmlFor="promotion_is_active" className="text-sm font-medium text-gray-700">
               Active
             </label>
+          </div>
+
+          {/* Auto Apply */}
+          <div className="flex items-start gap-3 rounded-md border border-amber-200 bg-amber-50 px-3 py-2.5">
+            <input
+              id="promotion_auto_apply"
+              type="checkbox"
+              {...register('auto_apply')}
+              className="mt-0.5 h-4 w-4 rounded border-gray-300 text-amber-600 focus:ring-amber-500"
+            />
+            <div>
+              <label htmlFor="promotion_auto_apply" className="text-sm font-medium text-gray-700">
+                Auto-apply
+              </label>
+              <p className="text-xs text-gray-500 mt-0.5">
+                When enabled, this promotion is automatically applied to every eligible sale.
+                Leave off to make it manual-only (staff must select it on the Record Sale page).
+              </p>
+            </div>
           </div>
 
           {/* Server error */}
@@ -468,6 +489,7 @@ export function PromotionsPage() {
                   'Date Range',
                   'Min Purchase',
                   'Scope',
+                  'Auto-apply',
                   'Status',
                   'Actions',
                 ].map((h) => (
@@ -503,6 +525,13 @@ export function PromotionsPage() {
                         : '—'}
                     </td>
                     <td className="px-4 py-3 text-gray-600">{promo.applies_to}</td>
+                    <td className="px-4 py-3">
+                      {promo.auto_apply ? (
+                        <span className="px-2 py-0.5 rounded text-xs font-medium bg-amber-100 text-amber-800">Auto</span>
+                      ) : (
+                        <span className="px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-500">Manual</span>
+                      )}
+                    </td>
                     <td className="px-4 py-3">
                       <span
                         className={`px-2 py-0.5 rounded text-xs font-medium ${

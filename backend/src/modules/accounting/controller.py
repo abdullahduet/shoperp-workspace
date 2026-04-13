@@ -19,6 +19,17 @@ def _get_service(db=Depends(get_db)) -> AccountingService:
     return AccountingService(repo)
 
 
+async def seed_accounts(
+    current_user=Depends(get_current_user),
+    service: AccountingService = Depends(_get_service),
+) -> JSONResponse:
+    count = await service.seed_accounts()
+    return success_response(
+        data={"seeded": count},
+        message=f"{count} accounts seeded successfully",
+    )
+
+
 async def list_accounts(
     current_user=Depends(get_current_user),
     service: AccountingService = Depends(_get_service),

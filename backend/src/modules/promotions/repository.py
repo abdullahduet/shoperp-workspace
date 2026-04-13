@@ -34,6 +34,20 @@ class PromotionRepository:
             include={"promotionProducts": True},
         )
 
+    async def find_active_auto_apply(self, now: datetime) -> list:
+        """Return active promotions that have auto_apply=True."""
+        where = {
+            "isActive": True,
+            "autoApply": True,
+            "deletedAt": None,
+            "startDate": {"lte": now},
+            "endDate": {"gte": now},
+        }
+        return await self.prisma.promotion.find_many(
+            where=where,
+            include={"promotionProducts": True},
+        )
+
     async def find_by_id(self, promotion_id: str):
         """Return a non-deleted promotion with promotionProducts included, or None."""
         return await self.prisma.promotion.find_first(

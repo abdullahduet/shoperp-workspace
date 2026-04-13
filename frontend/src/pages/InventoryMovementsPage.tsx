@@ -1,11 +1,12 @@
 import { useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useMovements, useAdjust } from '../hooks/useInventory';
 import { useCurrentUser } from '../hooks/useAuth';
 import { LoadingSkeleton } from '../components/ui/LoadingSkeleton';
 import { ErrorDisplay } from '../components/ui/ErrorDisplay';
+import { ProductSearchSelect } from '../components/ui/ProductSearchSelect';
 import type { MovementFilters, AdjustmentFormValues } from '../types/inventory.types';
 
 const adjustSchema = z.object({
@@ -17,7 +18,7 @@ const adjustSchema = z.object({
 export function InventoryMovementsPage() {
   const [page, setPage] = useState(1);
   const [filters, setFilters] = useState<MovementFilters>({});
-  const [productIdInput, setProductIdInput] = useState('');
+  const [filterProductId, setFilterProductId] = useState('');
   const [movementType, setMovementType] = useState('');
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
@@ -31,7 +32,7 @@ export function InventoryMovementsPage() {
   const { data, isLoading, isError, error } = useMovements({ ...filters, page, limit: 20 });
   const adjust = useAdjust();
 
-  const { register, handleSubmit, reset, formState: { errors, isSubmitting } } = useForm<AdjustmentFormValues>({
+  const { register, control, handleSubmit, reset, formState: { errors, isSubmitting } } = useForm<AdjustmentFormValues>({
     resolver: zodResolver(adjustSchema),
     defaultValues: { product_id: '', quantity: 0, notes: '' },
   });
@@ -39,7 +40,7 @@ export function InventoryMovementsPage() {
   function applyFilters() {
     setPage(1);
     setFilters({
-      product_id: productIdInput || undefined,
+      product_id: filterProductId || undefined,
       movement_type: (movementType as MovementFilters['movement_type']) || undefined,
       start_date: startDate || undefined,
       end_date: endDate || undefined,
@@ -47,7 +48,7 @@ export function InventoryMovementsPage() {
   }
 
   function resetFilters() {
-    setProductIdInput('');
+    setFilterProductId('');
     setMovementType('');
     setStartDate('');
     setEndDate('');
@@ -102,13 +103,13 @@ export function InventoryMovementsPage() {
 
       {/* Filter bar */}
       <div className="flex flex-wrap gap-3 mb-4">
-        <input
-          type="text"
-          placeholder="Product ID (UUID)"
-          value={productIdInput}
-          onChange={e => setProductIdInput(e.target.value)}
-          className="border border-gray-300 rounded px-3 py-1.5 text-sm w-72"
-        />
+        <div className="w-72">
+          <ProductSearchSelect
+            value={filterProductId}
+            onChange={(id) => setFilterProductId(id)}
+            placeholder="Filter by product…"
+          />
+        </div>
         <select
           value={movementType}
           onChange={e => setMovementType(e.target.value)}
@@ -196,11 +197,18 @@ export function InventoryMovementsPage() {
             <h2 className="text-lg font-semibold mb-4">New Stock Adjustment</h2>
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Product ID</label>
-                <input
-                  {...register('product_id')}
-                  placeholder="UUID of product"
-                  className="w-full border border-gray-300 rounded px-3 py-2 text-sm"
+                <label className="block text-sm font-medium text-gray-700 mb-1">Product</label>
+                <Controller
+                  control={control}
+                  name="product_id"
+                  render={({ field }) => (
+                    <ProductSearchSelect
+                      value={field.value}
+                      onChange={field.onChange}
+                      onBlur={field.onBlur}
+                      hasError={!!errors.product_id}
+                    />
+                  )}
                 />
                 {errors.product_id && <p className="text-red-500 text-xs mt-1">{errors.product_id.message}</p>}
               </div>

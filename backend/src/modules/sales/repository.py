@@ -9,20 +9,20 @@ class SalesRepository:
         self.prisma = prisma
 
     async def find_by_id(self, sale_id: str):
-        """Return a sale with saleItems included, or None if not found / deleted."""
+        """Return a sale with saleItems + product included, or None if not found / deleted."""
         return await self.prisma.sale.find_first(
             where={"id": sale_id, "deletedAt": None},
-            include={"saleItems": True},
+            include={"saleItems": {"include": {"product": True}}},
         )
 
     async def find_paginated(self, skip: int, take: int, where: dict) -> tuple:
-        """Return (list[Sale], total_count) with saleItems included."""
+        """Return (list[Sale], total_count) with saleItems + product included."""
         items = await self.prisma.sale.find_many(
             skip=skip,
             take=take,
             where=where,
             order=[{"saleDate": "desc"}],
-            include={"saleItems": True},
+            include={"saleItems": {"include": {"product": True}}},
         )
         total = await self.prisma.sale.count(where=where)
         return items, total
@@ -30,13 +30,13 @@ class SalesRepository:
     async def count_today_sales(self, today_str: str) -> int:
         """Count sales whose saleNumber starts with SALE-{today_str}."""
         return await self.prisma.sale.count(
-            where={"saleNumber": {"startswith": f"SALE-{today_str}"}}
+            where={"saleNumber": {"startsWith": f"SALE-{today_str}"}}
         )
 
     async def count_today_journal_entries(self, today_str: str) -> int:
         """Count journal entries whose entryNumber starts with JE-{today_str}."""
         return await self.prisma.journalentry.count(
-            where={"entryNumber": {"startswith": f"JE-{today_str}"}}
+            where={"entryNumber": {"startsWith": f"JE-{today_str}"}}
         )
 
     async def find_product_by_id(self, product_id: str):
@@ -122,5 +122,5 @@ class SalesRepository:
 
         return await self.prisma.sale.find_first(
             where={"id": sale.id},
-            include={"saleItems": True},
+            include={"saleItems": {"include": {"product": True}}},
         )

@@ -28,6 +28,12 @@ router.add_api_route(
     methods=["GET"],
     dependencies=[Depends(require_roles("admin", "manager", "staff"))],
 )
+router.add_api_route(
+    "/eligible",
+    controller.get_eligible_promotions,
+    methods=["GET"],
+    dependencies=[Depends(require_roles("admin", "manager", "staff"))],
+)
 
 # Parameterized routes LAST
 router.add_api_route(

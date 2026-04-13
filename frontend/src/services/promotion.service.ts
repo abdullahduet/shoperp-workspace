@@ -1,5 +1,5 @@
 import apiClient from '../api/client';
-import type { Promotion, PromotionPayload } from '../types/promotion.types';
+import type { EligiblePromotion, Promotion, PromotionPayload } from '../types/promotion.types';
 import type { Pagination } from '../types/product.types';
 
 export const promotionService = {
@@ -15,6 +15,16 @@ export const promotionService = {
 
   getActive: async (): Promise<Promotion[]> => {
     const res = await apiClient.get('/promotions/active');
+    return res.data.data;
+  },
+
+  getEligible: async (
+    subtotal: number,
+    items: Array<{ product_id: string; quantity: number; unit_price: number }>,
+  ): Promise<EligiblePromotion[]> => {
+    const res = await apiClient.get('/promotions/eligible', {
+      params: { subtotal, items: JSON.stringify(items) },
+    });
     return res.data.data;
   },
 

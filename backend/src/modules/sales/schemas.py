@@ -18,11 +18,14 @@ class SaleCreate(BaseModel):
     payment_method: PaymentMethod = "cash"
     customer_name: Optional[str] = None
     notes: Optional[str] = None
+    promotion_id: Optional[str] = None  # None = no promotion; set by client after manual selection
 
 
 class SaleItemResponse(BaseModel):
     id: str
     product_id: str
+    product_name: str
+    product_sku: str
     quantity: int
     unit_price: int
     discount: int
@@ -34,6 +37,8 @@ class SaleItemResponse(BaseModel):
         return cls(
             id=obj.id,
             product_id=obj.productId,
+            product_name=obj.product.name if obj.product else "",
+            product_sku=obj.product.sku if obj.product else "",
             quantity=obj.quantity,
             unit_price=obj.unitPrice,
             discount=obj.discount,

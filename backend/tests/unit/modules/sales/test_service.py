@@ -80,6 +80,8 @@ def _make_fake_sale_item(
     *,
     item_id: str = "item-uuid-1",
     product_id: str = "prod-uuid-1",
+    product_name: str = "Test Product",
+    product_sku: str = "SKU-001",
     quantity: int = 2,
     unit_price: int = 50000,
     discount: int = 0,
@@ -93,6 +95,10 @@ def _make_fake_sale_item(
     item.discount = discount
     item.totalPrice = total_price
     item.createdAt = datetime(2026, 4, 11, tzinfo=timezone.utc)
+    product = MagicMock()
+    product.name = product_name
+    product.sku = product_sku
+    item.product = product
     return item
 
 

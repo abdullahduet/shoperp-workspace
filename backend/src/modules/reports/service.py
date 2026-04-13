@@ -27,9 +27,24 @@ class ReportsService:
             e = datetime.now(timezone.utc)
         return s, e
 
-    def _parse_date_range(self, start_date, end_date) -> tuple[date, date]:
-        s = date.fromisoformat(start_date) if start_date else date(2000, 1, 1)
-        e = date.fromisoformat(end_date) if end_date else date.today()
+    def _parse_date_range(self, start_date, end_date) -> tuple[datetime, datetime]:
+        """Return a [start, end] datetime range for @db.Date columns.
+
+        Prisma Client Python requires datetime objects (not bare date objects)
+        for @db.Date column filters. Both datetimes are UTC midnight-bounded.
+        """
+        if start_date:
+            s = datetime.combine(
+                date.fromisoformat(start_date), datetime.min.time()
+            ).replace(tzinfo=timezone.utc)
+        else:
+            s = datetime(2000, 1, 1, tzinfo=timezone.utc)
+        if end_date:
+            e = datetime.combine(
+                date.fromisoformat(end_date), datetime.max.time()
+            ).replace(tzinfo=timezone.utc)
+        else:
+            e = datetime.now(timezone.utc)
         return s, e
 
     async def get_sales_report(self, start_date, end_date) -> SalesReport:

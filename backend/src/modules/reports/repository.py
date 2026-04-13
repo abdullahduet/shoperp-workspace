@@ -1,4 +1,4 @@
-from datetime import datetime, date
+from datetime import datetime
 
 
 class ReportsRepository:
@@ -19,15 +19,23 @@ class ReportsRepository:
             include={"saleItems": {"include": {"product": True}}},
         )
 
-    async def find_expenses_in_range(self, start: date, end: date) -> list:
-        """Return non-deleted expenses in [start, end] (date range)."""
+    async def find_expenses_in_range(self, start: datetime, end: datetime) -> list:
+        """Return non-deleted expenses in [start, end].
+
+        Expense.date is @db.Date — Prisma Client Python requires datetime
+        objects (not bare date objects) for this column type.
+        """
         return await self.prisma.expense.find_many(
             where={"deletedAt": None, "date": {"gte": start, "lte": end}},
             order=[{"date": "asc"}],
         )
 
-    async def find_pos_in_range(self, start: date, end: date) -> list:
-        """Return non-deleted, non-cancelled POs in [start, end] (orderDate range)."""
+    async def find_pos_in_range(self, start: datetime, end: datetime) -> list:
+        """Return non-deleted, non-cancelled POs in [start, end].
+
+        PurchaseOrder.orderDate is @db.Date — Prisma Client Python requires
+        datetime objects (not bare date objects) for this column type.
+        """
         return await self.prisma.purchaseorder.find_many(
             where={
                 "deletedAt": None,

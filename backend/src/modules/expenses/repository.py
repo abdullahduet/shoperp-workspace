@@ -42,7 +42,7 @@ class ExpenseRepository:
     async def count_today_journal_entries(self, today_str: str) -> int:
         """Count journal entries whose entryNumber starts with JE-{today_str}."""
         return await self.prisma.journalentry.count(
-            where={"entryNumber": {"startswith": f"JE-{today_str}"}}
+            where={"entryNumber": {"startsWith": f"JE-{today_str}"}}
         )
 
     async def find_account_by_code(self, code: str):

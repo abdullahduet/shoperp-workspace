@@ -1,12 +1,12 @@
 import { useNavigate } from 'react-router-dom';
-import { useForm, useFieldArray, useWatch } from 'react-hook-form';
+import { useForm, useFieldArray, useWatch, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Plus, Trash2, ArrowLeft } from 'lucide-react';
 import { useCreatePO } from '../hooks/usePurchaseOrders';
 import { useSuppliers } from '../hooks/useSuppliers';
-import { useProducts } from '../hooks/useProducts';
 import { LoadingSkeleton } from '../components/ui/LoadingSkeleton';
+import { ProductSearchSelect } from '../components/ui/ProductSearchSelect';
 
 const itemSchema = z.object({
   product_id: z.string().min(1, 'Select a product'),
@@ -35,10 +35,6 @@ export function PurchaseOrderFormPage() {
   const { data: suppliersData, isLoading: loadingSuppliers } = useSuppliers({
     is_active: true,
     limit: 100,
-  });
-  const { data: productsData, isLoading: loadingProducts } = useProducts({
-    is_active: true,
-    limit: 200,
   });
 
   const {
@@ -83,10 +79,9 @@ export function PurchaseOrderFormPage() {
     });
   };
 
-  if (loadingSuppliers || loadingProducts) return <LoadingSkeleton />;
+  if (loadingSuppliers) return <LoadingSkeleton />;
 
   const suppliers = suppliersData?.data ?? [];
-  const products = productsData?.data ?? [];
 
   return (
     <div>
@@ -180,19 +175,20 @@ export function PurchaseOrderFormPage() {
 
               return (
                 <div key={field.id} className="grid grid-cols-12 gap-2 items-start">
-                  {/* Product select */}
+                  {/* Product */}
                   <div className="col-span-5">
-                    <select
-                      {...register(`items.${index}.product_id`)}
-                      className="w-full px-2 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    >
-                      <option value="">Select product...</option>
-                      {products.map((p) => (
-                        <option key={p.id} value={p.id}>
-                          {p.sku} — {p.name}
-                        </option>
-                      ))}
-                    </select>
+                    <Controller
+                      control={control}
+                      name={`items.${index}.product_id`}
+                      render={({ field }) => (
+                        <ProductSearchSelect
+                          value={field.value}
+                          onChange={field.onChange}
+                          onBlur={field.onBlur}
+                          hasError={!!errors.items?.[index]?.product_id}
+                        />
+                      )}
+                    />
                     {errors.items?.[index]?.product_id && (
                       <p className="mt-0.5 text-xs text-red-600">
                         {errors.items[index]?.product_id?.message}

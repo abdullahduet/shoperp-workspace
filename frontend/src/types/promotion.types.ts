@@ -11,6 +11,7 @@ export interface Promotion {
   min_purchase_amount: number;
   applies_to: PromotionAppliesTo;
   is_active: boolean;
+  auto_apply: boolean;
   product_ids: string[];
   created_at: string;
 }
@@ -24,6 +25,7 @@ export interface PromotionFormValues {
   min_purchase_amount: number;
   applies_to: PromotionAppliesTo;
   is_active: boolean;
+  auto_apply: boolean;
   product_ids: string[];
 }
 
@@ -41,5 +43,15 @@ export interface PromotionPayload {
   min_purchase_amount: number;
   applies_to: PromotionAppliesTo;
   is_active: boolean;
+  auto_apply: boolean;
   product_ids: string[];
+}
+
+export interface EligiblePromotion {
+  id: string;
+  name: string;
+  type: string;
+  value: number;
+  discount_amount: number;  // paisa
+  auto_apply: boolean;
 }

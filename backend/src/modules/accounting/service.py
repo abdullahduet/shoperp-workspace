@@ -93,6 +93,26 @@ class AccountingService:
         entry = await self.repo.create_journal_entry_with_lines(entry_data, lines_data)
         return JournalEntryResponse.model_validate(entry)
 
+    async def seed_accounts(self) -> int:
+        """Upsert the default chart of accounts. Returns count of accounts ensured."""
+        accounts = [
+            {"code": "1000", "name": "Cash",                    "type": "asset"},
+            {"code": "1100", "name": "Accounts Receivable",     "type": "asset"},
+            {"code": "1200", "name": "Inventory",               "type": "asset"},
+            {"code": "2000", "name": "Accounts Payable",        "type": "liability"},
+            {"code": "3000", "name": "Owner's Equity",          "type": "equity"},
+            {"code": "4000", "name": "Sales Revenue",           "type": "revenue"},
+            {"code": "5000", "name": "Cost of Goods Sold",      "type": "expense"},
+            {"code": "6000", "name": "Rent Expense",            "type": "expense"},
+            {"code": "6100", "name": "Utilities Expense",       "type": "expense"},
+            {"code": "6200", "name": "Salary Expense",          "type": "expense"},
+            {"code": "6300", "name": "Marketing Expense",       "type": "expense"},
+            {"code": "6400", "name": "Office Supplies Expense", "type": "expense"},
+            {"code": "6500", "name": "Miscellaneous Expense",   "type": "expense"},
+        ]
+        await self.repo.upsert_accounts(accounts)
+        return len(accounts)
+
     async def _generate_entry_number(self) -> str:
         """Generate a sequential journal entry number for today: JE-YYYYMMDD-NNN."""
         today_str = date.today().strftime("%Y%m%d")

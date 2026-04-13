@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Download, Play } from 'lucide-react';
 import { reportService } from '../services/report.service';
 import type {
@@ -42,49 +42,73 @@ export function ReportsPage() {
   const [reportData, setReportData] = useState<unknown>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // Tracks the report type that produced the current reportData.
+  // renderResults() checks this before casting to prevent shape mismatches.
+  const [renderedType, setRenderedType] = useState<ReportType | null>(null);
+  const abortRef = useRef<AbortController | null>(null);
 
-  // Clear results when report type changes
+  // Clear results when report type changes and cancel any in-flight fetch
   useEffect(() => {
+    abortRef.current?.abort();
     setReportData(null);
+    setRenderedType(null);
     setError(null);
   }, [reportType]);
 
   async function runReport() {
+    // Cancel any previous in-flight fetch
+    abortRef.current?.abort();
+    const controller = new AbortController();
+    abortRef.current = controller;
+    // Capture the type at the moment Run is clicked
+    const activeType = reportType;
+
     setLoading(true);
     setError(null);
     setReportData(null);
+    setRenderedType(null);
     try {
       const params: DateParams = {
         start_date: startDate || undefined,
         end_date: endDate || undefined,
       };
-      switch (reportType) {
+      let result: unknown;
+      switch (activeType) {
         case 'sales':
-          setReportData(await reportService.getSalesReport(params));
+          result = await reportService.getSalesReport(params);
           break;
         case 'profit-loss':
-          setReportData(await reportService.getProfitLoss(params));
+          result = await reportService.getProfitLoss(params);
           break;
         case 'top-products':
-          setReportData(await reportService.getTopProducts(params));
+          result = await reportService.getTopProducts(params);
           break;
         case 'low-stock':
-          setReportData(await reportService.getLowStock());
+          result = await reportService.getLowStock();
           break;
         case 'purchases':
-          setReportData(await reportService.getPurchasesReport(params));
+          result = await reportService.getPurchasesReport(params);
           break;
         case 'expenses':
-          setReportData(await reportService.getExpensesReport(params));
+          result = await reportService.getExpensesReport(params);
           break;
         case 'inventory-valuation':
-          setReportData(await reportService.getInventoryValuation());
+          result = await reportService.getInventoryValuation();
           break;
       }
+      // Only commit if this fetch wasn't superseded by a newer one
+      if (!controller.signal.aborted) {
+        setReportData(result);
+        setRenderedType(activeType);
+      }
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Failed to load report');
+      if (!controller.signal.aborted) {
+        setError(e instanceof Error ? e.message : 'Failed to load report');
+      }
     } finally {
-      setLoading(false);
+      if (!controller.signal.aborted) {
+        setLoading(false);
+      }
     }
   }
 
@@ -96,9 +120,9 @@ export function ReportsPage() {
   }
 
   function renderResults() {
-    if (!reportData) return null;
+    if (!reportData || renderedType === null) return null;
 
-    switch (reportType) {
+    switch (renderedType) {
       case 'sales': {
         const data = reportData as SalesReport;
         return (

@@ -7,10 +7,20 @@ from datetime import datetime, timezone
 from src.core.exceptions import NotFoundError, ValidationError
 from src.modules.promotions.repository import PromotionRepository
 from src.modules.promotions.schemas import (
+    EligiblePromotionResponse,
     PromotionCreate,
     PromotionResponse,
     PromotionUpdate,
 )
+
+
+def _parse_dt(value: str) -> datetime:
+    """Parse an ISO 8601 datetime string on Python 3.9+.
+
+    Python 3.9's datetime.fromisoformat() does not accept the 'Z' suffix
+    (only added in 3.11). This helper normalises 'Z' → '+00:00' first.
+    """
+    return datetime.fromisoformat(value.replace("Z", "+00:00"))
 
 
 @dataclass
@@ -57,14 +67,9 @@ class PromotionService:
         return PromotionResponse.model_validate(promotion)
 
     async def create(self, input: PromotionCreate) -> PromotionResponse:
-        """Create a new promotion with optional product associations.
-
-        Validates:
-        - end_date must be after start_date
-        - applies_to='specific' requires non-empty product_ids
-        """
-        start_dt = datetime.fromisoformat(input.start_date)
-        end_dt = datetime.fromisoformat(input.end_date)
+        """Create a new promotion with optional product associations."""
+        start_dt = _parse_dt(input.start_date)
+        end_dt = _parse_dt(input.end_date)
 
         if end_dt <= start_dt:
             raise ValidationError("end_date must be after start_date")
@@ -83,6 +88,7 @@ class PromotionService:
             "minPurchaseAmount": input.min_purchase_amount,
             "appliesTo": input.applies_to,
             "isActive": input.is_active,
+            "autoApply": input.auto_apply,
         }
 
         promotion = await self.repo.create_with_products(promo_data, input.product_ids)
@@ -102,15 +108,17 @@ class PromotionService:
         if input.value is not None:
             promo_data["value"] = input.value
         if input.start_date is not None:
-            promo_data["startDate"] = datetime.fromisoformat(input.start_date)
+            promo_data["startDate"] = _parse_dt(input.start_date)
         if input.end_date is not None:
-            promo_data["endDate"] = datetime.fromisoformat(input.end_date)
+            promo_data["endDate"] = _parse_dt(input.end_date)
         if input.min_purchase_amount is not None:
             promo_data["minPurchaseAmount"] = input.min_purchase_amount
         if input.applies_to is not None:
             promo_data["appliesTo"] = input.applies_to
         if input.is_active is not None:
             promo_data["isActive"] = input.is_active
+        if input.auto_apply is not None:
+            promo_data["autoApply"] = input.auto_apply
 
         promotion = await self.repo.update_with_products(
             promotion_id, promo_data, input.product_ids
@@ -124,18 +132,47 @@ class PromotionService:
             raise NotFoundError("Promotion", promotion_id)
         await self.repo.soft_delete(promotion_id)
 
+    async def get_eligible(
+        self,
+        subtotal: int,
+        items: list[dict],
+    ) -> list[EligiblePromotionResponse]:
+        """Return all currently active promotions that yield a discount > 0.
+
+        Used by the Record Sale page so the user can manually pick a promotion.
+        Items: [{"product_id": str, "quantity": int, "unit_price": int}]
+        """
+        now = datetime.now(timezone.utc)
+        promotions = await self.repo.find_active(now)
+        result = []
+        for promo in promotions:
+            discount = self.calculate_discount(promo, subtotal, items)
+            if discount > 0:
+                result.append(EligiblePromotionResponse(
+                    id=promo.id,
+                    name=promo.name,
+                    type=promo.type,
+                    value=promo.value,
+                    discount_amount=discount,
+                    auto_apply=promo.autoApply,
+                ))
+        # Sort by discount descending so the best deal appears first
+        result.sort(key=lambda p: p.discount_amount, reverse=True)
+        return result
+
     async def get_best_discount(
         self,
         subtotal: int,
         items: list[dict],
     ) -> tuple[str | None, int]:
-        """Find the best active promotion. Returns (promotion_id, discount_amount).
+        """Find the best AUTO-APPLY promotion only.
 
-        Returns (None, 0) if no promotion applies or gives discount > 0.
-        Items must be: [{"product_id": str, "quantity": int, "unit_price": int}]
+        Returns (promotion_id, discount_amount) or (None, 0).
+        Only promotions with auto_apply=True are considered.
+        Items: [{"product_id": str, "quantity": int, "unit_price": int}]
         """
         now = datetime.now(timezone.utc)
-        promotions = await self.repo.find_active(now)
+        promotions = await self.repo.find_active_auto_apply(now)
         best_id: str | None = None
         best_discount = 0
         for promo in promotions:

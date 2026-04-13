@@ -115,7 +115,7 @@ model PurchaseOrder {
 
   supplier      Supplier           @relation(fields: [supplierId], references: [id])
   createdByUser User?              @relation(fields: [createdBy], references: [id])
-  items         PurchaseOrderItem[]
+  purchaseOrderItems         PurchaseOrderItem[]
 
   @@map("purchase_orders")
 }
@@ -166,6 +166,7 @@ model Promotion {
   minPurchaseAmount  Int       @default(0) @map("min_purchase_amount")
   appliesTo          String    @default("all") @map("applies_to") @db.VarChar(20)
   isActive           Boolean   @default(true) @map("is_active")
+  autoApply          Boolean   @default(false) @map("auto_apply")
   createdAt          DateTime  @default(now()) @map("created_at") @db.Timestamptz()
   updatedAt          DateTime  @updatedAt @map("updated_at") @db.Timestamptz()
   deletedAt          DateTime? @map("deleted_at") @db.Timestamptz()

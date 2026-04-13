@@ -1,11 +1,13 @@
 """Promotions controller — thin layer: validate input, call service, return response."""
 from __future__ import annotations
 
+import json
 from typing import Optional
 
 from fastapi import Depends, Query
 from fastapi.responses import JSONResponse
 
+from src.core.exceptions import ValidationError
 from src.core.responses import paginated_response, success_response
 from src.database import get_db
 from src.modules.promotions.repository import PromotionRepository
@@ -40,6 +42,23 @@ async def get_active_promotions(
     return success_response(
         data=[p.model_dump(mode="json") for p in promotions],
         message="Active promotions retrieved",
+    )
+
+
+async def get_eligible_promotions(
+    subtotal: int = Query(..., ge=0, description="Sale subtotal in paisa"),
+    items: str = Query(..., description='JSON: [{"product_id","quantity","unit_price"}]'),
+    service: PromotionService = Depends(_get_service),
+) -> JSONResponse:
+    """Return all active promotions that yield a discount > 0 for the given cart."""
+    try:
+        items_list: list[dict] = json.loads(items)
+    except Exception:
+        raise ValidationError("items must be a valid JSON array")
+    result = await service.get_eligible(subtotal, items_list)
+    return success_response(
+        data=[r.model_dump(mode="json") for r in result],
+        message="Eligible promotions retrieved",
     )
 
 

@@ -1,4 +1,5 @@
-import { useAccounts } from '../hooks/useAccounting';
+import { useAccounts, useSeedAccounts } from '../hooks/useAccounting';
+import { useAuthStore } from '../store/auth.store';
 import { LoadingSkeleton } from '../components/ui/LoadingSkeleton';
 import { ErrorDisplay } from '../components/ui/ErrorDisplay';
 
@@ -12,6 +13,10 @@ const ACCOUNT_TYPE_BADGE: Record<string, string> = {
 
 export function AccountsPage() {
   const { data: accounts, isLoading, isError, error } = useAccounts();
+  const seedAccounts = useSeedAccounts();
+  const user = useAuthStore((state) => state.user);
+  const isAdmin = user?.role === 'admin';
+  const isEmpty = !isLoading && !isError && (accounts ?? []).length === 0;
 
   if (isLoading) return <LoadingSkeleton />;
   if (isError)
@@ -31,7 +36,27 @@ export function AccountsPage() {
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-bold text-gray-900">Chart of Accounts</h1>
+        {isAdmin && isEmpty && (
+          <button
+            onClick={() => seedAccounts.mutate()}
+            disabled={seedAccounts.isPending}
+            className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 disabled:opacity-50"
+          >
+            {seedAccounts.isPending ? 'Seeding…' : 'Seed Default Accounts'}
+          </button>
+        )}
       </div>
+
+      {seedAccounts.isSuccess && (
+        <div className="mb-4 rounded-md bg-green-50 border border-green-200 px-4 py-2 text-sm text-green-700">
+          {seedAccounts.data.seeded} default accounts seeded successfully.
+        </div>
+      )}
+      {seedAccounts.isError && (
+        <div className="mb-4 rounded-md bg-red-50 border border-red-200 px-4 py-2 text-sm text-red-700">
+          {seedAccounts.error instanceof Error ? seedAccounts.error.message : 'Seeding failed'}
+        </div>
+      )}
 
       {sorted.length === 0 ? (
         <p className="text-gray-500 py-12 text-center">No accounts found.</p>

@@ -421,7 +421,7 @@ class TestGetBestDiscount:
     @pytest.mark.asyncio
     async def test_returns_none_zero_when_no_active_promotions(self):
         service, repo = _make_service()
-        repo.find_active.return_value = []
+        repo.find_active_auto_apply.return_value = []
         items = [{"product_id": "p1", "quantity": 2, "unit_price": 50000}]
 
         promotion_id, discount = await service.get_best_discount(100000, items)
@@ -446,7 +446,7 @@ class TestGetBestDiscount:
             value=20000,
             min_purchase_amount=0,
         )
-        repo.find_active.return_value = [promo_a, promo_b]
+        repo.find_active_auto_apply.return_value = [promo_a, promo_b]
         items = [{"product_id": "p1", "quantity": 2, "unit_price": 50000}]
 
         promotion_id, discount = await service.get_best_discount(100000, items)

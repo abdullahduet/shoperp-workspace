@@ -9,6 +9,12 @@ from src.modules.accounting import controller
 router = APIRouter(prefix="/accounting", tags=["accounting"])
 
 router.add_api_route(
+    "/seed-accounts",
+    controller.seed_accounts,
+    methods=["POST"],
+    dependencies=[Depends(require_roles("admin"))],
+)
+router.add_api_route(
     "/accounts",
     controller.list_accounts,
     methods=["GET"],

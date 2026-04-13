@@ -30,7 +30,7 @@ class AccountingRepository:
     async def count_today_journal_entries(self, today_str: str) -> int:
         """Count journal entries whose entryNumber starts with JE-{today_str}."""
         return await self.prisma.journalentry.count(
-            where={"entryNumber": {"startswith": f"JE-{today_str}"}}
+            where={"entryNumber": {"startsWith": f"JE-{today_str}"}}
         )
 
     async def find_account_by_id(self, account_id: str):
@@ -38,6 +38,21 @@ class AccountingRepository:
         return await self.prisma.account.find_first(
             where={"id": account_id}
         )
+
+    async def upsert_accounts(self, accounts: list[dict]) -> None:
+        """Upsert accounts by code — safe to call multiple times."""
+        for account in accounts:
+            await self.prisma.account.upsert(
+                where={"code": account["code"]},
+                data={
+                    "create": {
+                        "code": account["code"],
+                        "name": account["name"],
+                        "type": account["type"],
+                    },
+                    "update": {},
+                },
+            )
 
     async def create_journal_entry_with_lines(
         self, entry_data: dict, lines_data: list[dict]

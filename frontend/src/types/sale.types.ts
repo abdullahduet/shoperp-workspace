@@ -1,6 +1,8 @@
 export interface SaleItem {
   id: string;
   product_id: string;
+  product_name: string;
+  product_sku: string;
   quantity: number;
   unit_price: number;
   discount: number;
@@ -48,4 +50,5 @@ export interface SalePayload {
   payment_method?: string;
   customer_name?: string;
   notes?: string;
+  promotion_id?: string;
 }

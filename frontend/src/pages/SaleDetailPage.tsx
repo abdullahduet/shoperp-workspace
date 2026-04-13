@@ -102,7 +102,7 @@ export function SaleDetailPage() {
           <table className="min-w-full text-sm">
             <thead className="bg-gray-50 text-gray-500 uppercase text-xs">
               <tr>
-                {['Product ID', 'Quantity', 'Unit Price', 'Total Price'].map((h) => (
+                {['Product', 'SKU', 'Quantity', 'Unit Price', 'Total Price'].map((h) => (
                   <th key={h} className="px-4 py-3 text-left font-medium">
                     {h}
                   </th>
@@ -112,7 +112,8 @@ export function SaleDetailPage() {
             <tbody className="divide-y divide-gray-100">
               {sale.items.map((item) => (
                 <tr key={item.id} className="hover:bg-gray-50">
-                  <td className="px-4 py-3 font-mono text-gray-700 text-xs">{item.product_id}</td>
+                  <td className="px-4 py-3 font-medium text-gray-900">{item.product_name}</td>
+                  <td className="px-4 py-3 font-mono text-gray-500 text-xs">{item.product_sku}</td>
                   <td className="px-4 py-3 text-gray-700">{item.quantity}</td>
                   <td className="px-4 py-3 font-mono text-gray-700">
                     ৳{(item.unit_price / 100).toFixed(2)}

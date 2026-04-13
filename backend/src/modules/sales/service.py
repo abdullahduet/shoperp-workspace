@@ -84,11 +84,12 @@ class SalesService:
             product = await self.repo.find_product_by_id(item.product_id)
             if product is None or product.deletedAt is not None:
                 raise ValidationError(f"Product not found: {item.product_id}")
+            product_label = f"{product.name} ({product.sku})"
             if not product.isActive:
-                raise ValidationError(f"Product is inactive: {item.product_id}")
+                raise ValidationError(f"Product is inactive: {product_label}")
             if product.stockQuantity < item.quantity:
                 raise ValidationError(
-                    f"Insufficient stock for product {item.product_id}: "
+                    f"Insufficient stock for '{product_label}': "
                     f"available {product.stockQuantity}, requested {item.quantity}"
                 )
             products.append(product)
@@ -106,10 +107,25 @@ class SalesService:
             for i in input.items
         ]
 
-        # Step 4: Get best promotion discount
-        promotion_id, discount_amount = await self.promotion_service.get_best_discount(
-            subtotal, items_for_discount
-        )
+        # Step 4: Resolve promotion — manual selection takes priority;
+        #         fall back to best auto-apply promotion if none selected.
+        if input.promotion_id is not None:
+            # Validate the manually selected promotion is active and yields a discount
+            eligible = await self.promotion_service.get_eligible(subtotal, items_for_discount)
+            eligible_ids = {e.id for e in eligible}
+            if input.promotion_id not in eligible_ids:
+                raise ValidationError(
+                    "Selected promotion is not eligible for this sale"
+                )
+            promo_obj = await self.promotion_service.repo.find_by_id(input.promotion_id)
+            discount_amount = self.promotion_service.calculate_discount(
+                promo_obj, subtotal, items_for_discount
+            )
+            promotion_id: str | None = input.promotion_id
+        else:
+            promotion_id, discount_amount = await self.promotion_service.get_best_discount(
+                subtotal, items_for_discount
+            )
 
         # Step 5: Compute tax from each product's taxRate (Decimal → float)
         tax_amount = sum(

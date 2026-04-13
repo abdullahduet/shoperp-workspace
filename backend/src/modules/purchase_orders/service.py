@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from datetime import date
+from datetime import date, datetime, timezone
 
 from src.core.exceptions import NotFoundError, ValidationError
 from src.modules.purchase_orders.repository import PurchaseOrderRepository
@@ -86,7 +86,8 @@ class PurchaseOrderService:
         if input.notes:
             po_data["notes"] = input.notes
         if input.expected_date:
-            po_data["expectedDate"] = date.fromisoformat(input.expected_date)
+            d = date.fromisoformat(input.expected_date)
+            po_data["expectedDate"] = datetime(d.year, d.month, d.day, tzinfo=timezone.utc)
 
         po = await self.repo.create_with_items(po_data, items_data)
         return PurchaseOrderResponse.model_validate(po)
@@ -105,7 +106,11 @@ class PurchaseOrderService:
         if input.notes is not None:
             po_data["notes"] = input.notes
         if input.expected_date is not None:
-            po_data["expectedDate"] = date.fromisoformat(input.expected_date) if input.expected_date else None
+            if input.expected_date:
+                d = date.fromisoformat(input.expected_date)
+                po_data["expectedDate"] = datetime(d.year, d.month, d.day, tzinfo=timezone.utc)
+            else:
+                po_data["expectedDate"] = None
 
         items_data = None
         if input.items is not None:

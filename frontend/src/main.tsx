@@ -5,6 +5,8 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import App from './App';
 import './index.css';
+import { authService } from './services/auth.service';
+import { useAuthStore } from './store/auth.store';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -16,6 +18,11 @@ const queryClient = new QueryClient({
 
 const root = document.getElementById('root');
 if (!root) throw new Error('Root element not found');
+
+// Hydrate auth state on app load
+authService.me()
+  .then((user) => useAuthStore.getState().setUser(user))
+  .catch(() => useAuthStore.getState().setUser(null));
 
 createRoot(root).render(
   <StrictMode>

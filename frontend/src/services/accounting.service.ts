@@ -9,6 +9,11 @@ import type {
 import type { Pagination } from '../types/product.types';
 
 export const accountingService = {
+  seedAccounts: async (): Promise<{ seeded: number }> => {
+    const res = await apiClient.post('/accounting/seed-accounts');
+    return res.data.data;
+  },
+
   listAccounts: async (): Promise<Account[]> => {
     const res = await apiClient.get('/accounting/accounts');
     return res.data.data;

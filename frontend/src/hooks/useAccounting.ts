@@ -2,6 +2,16 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { accountingService } from '../services/accounting.service';
 import type { JournalEntryPayload, ExpensePayload } from '../types/accounting.types';
 
+export function useSeedAccounts() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: () => accountingService.seedAccounts(),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['accounts'] });
+    },
+  });
+}
+
 export function useAccounts() {
   return useQuery({
     queryKey: ['accounts'],
