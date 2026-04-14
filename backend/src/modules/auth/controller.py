@@ -7,6 +7,7 @@ from prisma.models import User
 
 from src.core.auth import get_current_user
 from src.core.responses import success_response
+from src.config import settings
 from src.database import get_db
 from src.modules.auth.repository import AuthRepository
 from src.modules.auth.schemas import (
@@ -27,6 +28,7 @@ async def login(
     service: AuthService = Depends(_get_service),
 ) -> JSONResponse:
     result = await service.login(body.email, body.password)
+    is_production = settings.ENVIRONMENT == "production"
     resp = success_response(
         data=result.user.model_dump(mode="json"),
         message="Login successful",
@@ -36,8 +38,11 @@ async def login(
         value=result.token,
         httponly=True,
         max_age=604800,
-        samesite="lax",
-        secure=False,
+        # SameSite=None + Secure=True required for cross-origin cookie auth
+        # (Netlify frontend on *.netlify.app, backend on *.onrender.com).
+        # In local dev (HTTP) use Lax/False so the browser accepts the cookie.
+        samesite="none" if is_production else "lax",
+        secure=is_production,
     )
     return resp
 
@@ -60,8 +65,14 @@ async def register(
 
 
 async def logout(response: Response) -> JSONResponse:
+    is_production = settings.ENVIRONMENT == "production"
     resp = success_response(data=None, message="Logged out")
-    resp.delete_cookie(key="access_token", httponly=True, samesite="lax")
+    resp.delete_cookie(
+        key="access_token",
+        httponly=True,
+        samesite="none" if is_production else "lax",
+        secure=is_production,
+    )
     return resp
 
 
