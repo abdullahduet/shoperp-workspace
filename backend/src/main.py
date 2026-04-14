@@ -8,6 +8,7 @@ from fastapi.exceptions import RequestValidationError
 from src.core.exceptions import AppError
 from src.core.responses import error_response
 from src import database
+from src.config import settings
 from src.modules.health.router import router as health_router
 from src.modules.auth.router import router as auth_router
 from src.modules.categories.router import router as categories_router
@@ -37,9 +38,10 @@ app = FastAPI(
 )
 
 # CORS middleware must be registered before routes
+_allowed_origins = [o.strip() for o in settings.ALLOWED_ORIGINS.split(",") if o.strip()]
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],
+    allow_origins=_allowed_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

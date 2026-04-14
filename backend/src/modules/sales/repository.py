@@ -87,7 +87,7 @@ class SalesRepository:
                         "stockBefore": su["stock_before"],
                         "stockAfter": su["stock_after"],
                         "referenceType": "sale",
-                        "referenceId": sale.id,
+                        "referenceId": str(sale.id),
                         "performedBy": su["performed_by"],
                     }
                 )
@@ -97,7 +97,7 @@ class SalesRepository:
                     "entryNumber": journal_data["entry_number"],
                     "description": journal_data["description"],
                     "referenceType": "sale",
-                    "referenceId": sale.id,
+                    "referenceId": str(sale.id),
                     "createdBy": journal_data["created_by"],
                 }
             )

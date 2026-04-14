@@ -69,7 +69,7 @@ class ExpenseRepository:
                         f"— {expense_data.get('description', '')}"
                     ),
                     "referenceType": "expense",
-                    "referenceId": expense.id,
+                    "referenceId": str(expense.id),
                     "createdBy": expense_data.get("recordedBy"),
                 }
             )

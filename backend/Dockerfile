@@ -23,5 +23,10 @@ RUN prisma generate
 
 EXPOSE 8000
 
-# Run migrations then start the server
-CMD ["sh", "-c", "prisma db push --skip-generate && uvicorn src.main:app --host 0.0.0.0 --port 8000"]
+# Run migrations, seed accounts, then start the server.
+#
+# prisma migrate deploy  — uses DIRECT_URL (bypasses PgBouncer) for DDL.
+#                          Safe to run on every deploy; only applies pending migrations.
+# python prisma/seed.py  — idempotent upsert of the 13 chart-of-accounts rows.
+# uvicorn                — uses DATABASE_URL (pooled) for all runtime queries.
+CMD ["sh", "-c", "prisma migrate deploy && python prisma/seed.py && uvicorn src.main:app --host 0.0.0.0 --port 8000"]
