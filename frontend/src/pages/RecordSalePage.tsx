@@ -71,11 +71,9 @@ export function RecordSalePage() {
 
   // Subtotal in ৳ (form stores ৳, not paisa)
   const subtotalTaka = (watchedItems ?? []).reduce((sum, item) => {
-    return (
-      sum +
-      (typeof item.unit_price === 'number' ? item.unit_price : 0) *
-        (typeof item.quantity === 'number' ? item.quantity : 0)
-    );
+    const price = typeof item.unit_price === 'number' && !isNaN(item.unit_price) ? item.unit_price : 0;
+    const qty = typeof item.quantity === 'number' && !isNaN(item.quantity) ? item.quantity : 0;
+    return sum + price * qty;
   }, 0);
 
   const subtotalPaisa = Math.round(subtotalTaka * 100);
@@ -89,7 +87,7 @@ export function RecordSalePage() {
       (i) => i.product_id && typeof i.quantity === 'number' && i.quantity > 0 &&
              typeof i.unit_price === 'number' && i.unit_price > 0,
     );
-    if (validItems.length === 0 || subtotalPaisa === 0) return;
+    if (validItems.length === 0 || subtotalPaisa === 0 || isNaN(subtotalPaisa)) return;
 
     if (debounceRef.current) clearTimeout(debounceRef.current);
     debounceRef.current = setTimeout(async () => {
@@ -119,6 +117,8 @@ export function RecordSalePage() {
     ? selectedPromotion.discount_amount / 100
     : 0;
   const totalTaka = subtotalTaka - discountTaka;
+
+  const fmt = (n: number) => (isNaN(n) ? '0.00' : n.toFixed(2));
 
   const onSubmit = (values: SaleSchemaValues) => {
     const payload: SalePayload = {
@@ -187,8 +187,8 @@ export function RecordSalePage() {
           <div className="space-y-2">
             {fields.map((field, index) => {
               const item = watchedItems?.[index];
-              const qty = typeof item?.quantity === 'number' ? item.quantity : 0;
-              const unitPrice = typeof item?.unit_price === 'number' ? item.unit_price : 0;
+              const qty = typeof item?.quantity === 'number' && !isNaN(item.quantity) ? item.quantity : 0;
+              const unitPrice = typeof item?.unit_price === 'number' && !isNaN(item.unit_price) ? item.unit_price : 0;
               const rowTotal = unitPrice * qty;
 
               return (
@@ -274,7 +274,7 @@ export function RecordSalePage() {
                   </div>
 
                   <div className="col-span-1 py-2 font-mono text-sm text-gray-700">
-                    ৳{rowTotal.toFixed(2)}
+                    ৳{fmt(rowTotal)}
                   </div>
 
                   <div className="col-span-1 flex justify-center">
@@ -304,17 +304,17 @@ export function RecordSalePage() {
           <div className="mt-4 pt-4 border-t border-gray-100 space-y-1">
             <div className="flex justify-end text-sm text-gray-600">
               <span className="w-32 text-right">Subtotal</span>
-              <span className="w-28 text-right font-mono">৳{subtotalTaka.toFixed(2)}</span>
+              <span className="w-28 text-right font-mono">৳{fmt(subtotalTaka)}</span>
             </div>
             {selectedPromotion && (
               <div className="flex justify-end text-sm text-green-700">
                 <span className="w-32 text-right">Discount</span>
-                <span className="w-28 text-right font-mono">−৳{discountTaka.toFixed(2)}</span>
+                <span className="w-28 text-right font-mono">−৳{fmt(discountTaka)}</span>
               </div>
             )}
             <div className="flex justify-end text-sm font-semibold text-gray-900">
               <span className="w-32 text-right">Total</span>
-              <span className="w-28 text-right font-mono">৳{totalTaka.toFixed(2)}</span>
+              <span className="w-28 text-right font-mono">৳{fmt(totalTaka)}</span>
             </div>
           </div>
         </div>
